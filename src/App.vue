@@ -1,19 +1,47 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <h1>Vue Todos</h1>
+    <NewTodo @add-todo="addTodo" />
+    <TodoList v-bind:todos="todos" @del-todo="delTodo" @edit-todo="editTodo" />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import TodoList from "./components/TodoList";
+import NewTodo from "./components/NewTodo";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
-  }
-}
+    TodoList,
+    NewTodo,
+  },
+  data: () => {
+    return {
+      todos: [],
+    };
+  },
+  methods: {
+    delTodo(id) {
+      this.todos = this.todos.filter((todo) => todo.id !== id);
+    },
+
+    addTodo(newTodo) {
+      this.todos = [...this.todos, newTodo];
+    },
+
+    editTodo(editedTodo) {
+      this.todos = this.todos.map((todo) =>
+        todo.id === editedTodo.id ? editedTodo : todo
+      );
+    },
+  },
+  created() {
+    fetch("https://jsonplaceholder.typicode.com/todos?_limit=10")
+      .then((response) => response.json())
+      .then((json) => (this.todos = json));
+  },
+};
 </script>
 
 <style>
@@ -21,8 +49,6 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>
