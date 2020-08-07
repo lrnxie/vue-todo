@@ -1,17 +1,13 @@
 <template>
   <div>
-    <div v-if="!editStatus" v-bind:class="{ completed: todo.completed }">
-      <input
-        type="checkbox"
-        v-on:change="markComplete"
-        :checked="todo.completed"
-      />
+    <div v-if="!editStatus" :class="{ completed: todo.completed }">
+      <input type="checkbox" @change="markComplete" :checked="todo.completed" />
       <span>{{ todo.title }}</span>
       <button @click="changeEditStatus(true)">Edit</button>
-      <button @click="$emit('del-todo', todo.id)">Delete</button>
+      <button @click="delTodo(todo.id)">Delete</button>
     </div>
 
-    <form v-else @submit.prevent="editTodo">
+    <form v-else @submit.prevent="handleSubmit">
       <input type="text" v-model="newTitle" />
       <button type="submit">Save</button>
       <button @click="changeEditStatus(false)">Cancel</button>
@@ -20,6 +16,8 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
+
 export default {
   name: "TodoItem",
   props: ["todo"],
@@ -30,17 +28,33 @@ export default {
     };
   },
   methods: {
+    ...mapActions(["delTodo", "editTodo"]),
+
     markComplete() {
-      this.todo.completed = !this.todo.completed;
+      const editedTodo = {
+        ...this.todo,
+        completed: !this.todo.completed,
+      };
+
+      this.editTodo(editedTodo);
     },
+
     changeEditStatus(bool) {
       this.editStatus = bool;
     },
-    editTodo() {
-      const editedTodo = { ...this.todo, title: this.newTitle };
 
-      this.$emit("edit-todo", editedTodo);
-      this.editStatus = false;
+    handleSubmit() {
+      if (this.newTitle.trim() !== "") {
+        const editedTodo = {
+          ...this.todo,
+          title: this.newTitle,
+        };
+
+        this.editTodo(editedTodo);
+        this.editStatus = false;
+      } else {
+        alert("Title cannot be empty");
+      }
     },
   },
 };

@@ -1,16 +1,13 @@
 <template>
   <ul>
-    <li v-for="todo in todos" v-bind:key="todo.id">
-      <TodoItem
-        v-bind:todo="todo"
-        v-on:del-todo="$emit('del-todo', todo.id)"
-        v-on:edit-todo="editTodo"
-      />
+    <li v-for="todo in allTodos" :key="todo.id">
+      <TodoItem :todo="todo" />
     </li>
   </ul>
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
 import TodoItem from "./TodoItem";
 
 export default {
@@ -18,11 +15,12 @@ export default {
   components: {
     TodoItem,
   },
-  props: ["todos"],
   methods: {
-    editTodo(editedTodo) {
-      this.$emit("edit-todo", editedTodo);
-    },
+    ...mapActions(["fetchTodos"]),
+  },
+  computed: mapGetters(["allTodos"]),
+  created() {
+    this.fetchTodos();
   },
 };
 </script>
